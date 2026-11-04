@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#dff3ff">
+<title>NaviAble — Navigate Freely</title>
+<style>
+:root {
+  --sky-50:#f3fbff; --sky-100:#dff3ff; --sky-200:#b9e7ff;
+  --sky-500:#3299d6; --sky-700:#17658f; --navy:#173b56;
+  --yellow:#ffd84d; --yellow-soft:#fff4bd; --white:#ffffff;
+  --text:#19384d; --muted:#567184; --line:#c8e3f1; --green:#177c60;
+}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(180deg,var(--sky-50),#fff 60%);font-family:Inter,Arial,sans-serif;color:var(--text)}
+header{background:var(--sky-100);border-bottom:3px solid var(--yellow);padding:22px 18px}
+.header-inner{max-width:1080px;margin:auto;display:flex;align-items:center;gap:14px}
+.logo{width:54px;height:54px;border-radius:17px;background:var(--yellow);display:grid;place-items:center;font-size:28px;box-shadow:0 5px 0 #e6c23f}
+h1{margin:0;font-size:1.8rem;color:var(--navy);letter-spacing:-.5px}
+.tagline{margin:5px 0 0;color:var(--sky-700)}
+main{max-width:1080px;margin:24px auto;padding:0 15px;display:grid;grid-template-columns:minmax(290px,.9fr) minmax(320px,1.1fr);gap:18px}
+.card{background:var(--white);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 8px 24px #17658f0c}
+h2{font-size:1.18rem;margin:0 0 12px;color:var(--navy)}
+.intro{font-size:.94rem;line-height:1.55;color:var(--muted)}
+label{display:block;font-weight:700;margin:14px 0 7px}
+select,button{font:inherit;width:100%;padding:12px 13px;border-radius:12px;border:1.5px solid #a8d5eb;background:#fff;color:var(--text)}
+select:focus,button:focus{outline:3px solid var(--yellow);outline-offset:2px}
+button{background:var(--sky-500);color:white;border:0;font-weight:750;cursor:pointer;margin-top:11px;min-height:46px}
+button:hover{background:var(--sky-700)}
+button.secondary{background:var(--yellow-soft);color:var(--navy);border:1px solid #eed66a}
+button.secondary:hover{background:var(--yellow)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.status{background:var(--sky-50);border:1px solid var(--line);border-left:5px solid var(--yellow);border-radius:12px;padding:12px;margin-top:13px;line-height:1.5}
+.map-wrap{background:var(--sky-50);border:1px solid var(--line);border-radius:15px;overflow:hidden}
+#map{display:block;width:100%;height:auto}
+.pill{display:inline-block;background:var(--yellow-soft);border:1px solid #eed66a;color:var(--navy);border-radius:30px;padding:6px 10px;font-size:.8rem;font-weight:700;margin-bottom:12px}
+#steps{padding-left:25px;line-height:1.6}
+#steps li{padding:6px 7px;border-radius:8px;margin:2px 0}
+.small{font-size:.86rem;color:var(--muted);line-height:1.5}
+.warning{background:#fff9df;border:1px solid #f1df87;border-radius:12px;padding:12px;margin-top:13px;font-size:.88rem;line-height:1.5}
+footer{text-align:center;color:var(--muted);font-size:.83rem;padding:12px 18px 25px}
+@media(max-width:760px){main{grid-template-columns:1fr}.row{grid-template-columns:1fr}h1{font-size:1.5rem}}
+</style>
+</head>
+<body>
+<header>
+ <div class="header-inner">
+  <div class="logo" aria-hidden="true">➤</div>
+  <div><h1>NaviAble</h1><p class="tagline">Navigate Freely. Live Independently.</p></div>
+ </div>
+</header>
+<main>
+<section class="card" aria-labelledby="plan-title">
+ <h2 id="plan-title">Where would you like to go?</h2>
+ <p class="intro">Choose a building checkpoint and destination. NaviAble will create a sample indoor route and read directions aloud.</p>
+ <label for="language">Language / மொழி / भाषा</label>
+ <select id="language"><option value="en">English</option><option value="ta">தமிழ் (Tamil)</option><option value="hi">हिन्दी (Hindi)</option></select>
+ <label for="building">Building</label>
+ <select id="building"><option value="sample_college">Sample College Building</option></select>
+ <div class="row">
+  <div><label for="start">Current checkpoint</label><select id="start"></select></div>
+  <div><label for="destination">Destination</label><select id="destination"></select></div>
+ </div>
+ <label for="routePref">Route preference</label>
+ <select id="routePref"><option value="stepfree">Prefer lift / step-free route</option><option value="shortest">Shortest mapped route</option></select>
+ <button id="findRoute">Find my route</button>
+ <button id="speakAll" class="secondary">🔊 Read instructions aloud</button>
+ <button id="nextStep" class="secondary">Next instruction →</button>
+ <div id="status" class="status" role="status" aria-live="polite">Loading the sample building map…</div>
+ <div class="warning"><strong>Safety first:</strong> This is a demo map, not live indoor positioning. It does not detect obstacles or guarantee a safe path. Do not rely on it as the sole aid for real-world navigation.</div>
+</section>
+<section class="card" aria-labelledby="map-title">
+ <h2 id="map-title">Your indoor route</h2>
+ <span class="pill">SAMPLE BUILDING · NOT TO SCALE</span>
+ <div class="map-wrap">
+ <svg id="map" viewBox="0 0 500 320" role="img" aria-label="Sample indoor map">
+  <text x="18" y="25" font-size="13" fill="#567184">Ground floor</text>
+  <path d="M80 190 L180 190 L300 190 L420 130 M300 190 L420 250 M80 190 L80 260" stroke="#b9d5e5" stroke-width="13" stroke-linecap="round" fill="none"/>
+  <rect x="34" y="164" width="92" height="50" rx="9" fill="#dff3ff" stroke="#3299d6" stroke-width="1.5"/><text x="80" y="184" font-size="11" text-anchor="middle" fill="#173b56">Main</text><text x="80" y="198" font-size="11" text-anchor="middle" fill="#173b56">Entrance</text>
+  <rect x="145" y="164" width="70" height="50" rx="9" fill="#fff4bd" stroke="#e6c23f"/><text x="180" y="193" font-size="12" text-anchor="middle" fill="#173b56">Lobby</text>
+  <rect x="257" y="164" width="86" height="50" rx="9" fill="#dff3ff" stroke="#3299d6"/><text x="300" y="193" font-size="12" text-anchor="middle" fill="#173b56">Corridor</text>
+  <rect x="380" y="104" width="80" height="50" rx="9" fill="#fff4bd" stroke="#e6c23f"/><text x="420" y="133" font-size="12" text-anchor="middle" fill="#173b56">Office</text>
+  <rect x="380" y="224" width="80" height="50" rx="9" fill="#dff3ff" stroke="#3299d6"/><text x="420" y="253" font-size="12" text-anchor="middle" fill="#173b56">Lift</text>
+  <rect x="34" y="236" width="92" height="48" rx="9" fill="#fff4bd" stroke="#e6c23f"/><text x="80" y="264" font-size="12" text-anchor="middle" fill="#173b56">Exit Gate</text>
+  <text x="18" y="307" font-size="11" fill="#567184">The route line updates after you select Find my route.</text>
+ </svg>
+ </div>
+ <h2 style="margin-top:18px">Step-by-step directions</h2>
+ <ol id="steps"><li>Select a checkpoint and destination, then find a route.</li></ol>
+ <p id="notice" class="small">Replace this sample map with a verified floor plan before any real-world trial.</p>
+</section>
+</main>
+<footer>NaviAble · Accessible navigation concept prototype · Built for demonstration</footer>
+<script>
+const $=id=>document.getElementById(id);
+let latestSteps=[],stepIndex=0,buildingData=null;
+function voiceLang(){return ({en:"en-IN",ta:"ta-IN",hi:"hi-IN"})[$("language").value]||"en-IN";}
+function speak(text){
+ if(!("speechSynthesis" in window)){$("status").textContent="Speech playback is not supported in this browser.";return;}
+ speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang=voiceLang();u.rate=.88;speechSynthesis.speak(u);
+}
+async function loadMap(){
+ const r=await fetch("/api/buildings/sample_college");buildingData=await r.json();
+ for(const id of ["start","destination"]){
+  $(id).innerHTML="";
+  Object.entries(buildingData.nodes).forEach(([key,node])=>{
+   const opt=document.createElement("option");opt.value=key;opt.textContent=`${node.label} (Floor ${node.floor})`;$(id).appendChild(opt);
+  });
+ }
+ $("start").value="entrance";$("destination").value="room_101";
+ $("status").textContent="Map loaded. Choose your destination and select Find my route.";
+}
+function drawRoute(path){
+ const svg=$("map");svg.querySelectorAll(".route-overlay,.route-dot").forEach(el=>el.remove());
+ const c={entrance:[80,190],lobby:[180,190],corridor:[300,190],office:[420,130],lift_g:[420,250],lift_1:[420,250],upper_corridor:[300,190],room_101:[180,130],restroom:[180,250],exit:[80,260]};
+ if(!path||!path.length)return;
+ const line=document.createElementNS("http://www.w3.org/2000/svg","polyline");
+ line.setAttribute("points",path.map(k=>c[k].join(",")).join(" "));line.setAttribute("fill","none");line.setAttribute("stroke","#3299d6");line.setAttribute("stroke-width","7");line.setAttribute("stroke-linecap","round");line.setAttribute("stroke-linejoin","round");line.setAttribute("class","route-overlay");svg.appendChild(line);
+ path.forEach(k=>{const dot=document.createElementNS("http://www.w3.org/2000/svg","circle");dot.setAttribute("cx",c[k][0]);dot.setAttribute("cy",c[k][1]);dot.setAttribute("r","7");dot.setAttribute("fill","#ffd84d");dot.setAttribute("stroke","#173b56");dot.setAttribute("stroke-width","2");dot.setAttribute("class","route-dot");svg.appendChild(dot);});
+}
+async function findRoute(){
+ $("status").textContent="Calculating your sample route…";
+ try{
+  const r=await fetch("/api/route",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({building_id:$("building").value,start:$("start").value,destination:$("destination").value,language:$("language").value,step_free:$("routePref").value==="stepfree"})});
+  const data=await r.json();if(!r.ok)throw new Error(data.detail||"Route error");
+  latestSteps=data.steps||[];stepIndex=0;$("steps").innerHTML="";
+  latestSteps.forEach((s,i)=>{const li=document.createElement("li");li.textContent=s;li.dataset.index=i;$("steps").appendChild(li);});
+  drawRoute(data.path||[]);$("status").textContent=latestSteps.length?`Route ready · ${Math.max(0,(data.path||[]).length-1)} mapped segment(s). Demo only.`:(data.message||"No route found.");
+  $("notice").textContent=data.notice||"";
+  if(latestSteps.length)speak(latestSteps[0]);
+ }catch(e){$("status").textContent="Backend unavailable. Follow README.md to start the server.";}
+}
+$("findRoute").addEventListener("click",findRoute);
+$("speakAll").addEventListener("click",()=>latestSteps.length?speak(latestSteps.join(" ")) : speak("Please find a route first."));
+$("nextStep").addEventListener("click",()=>{
+ if(!latestSteps.length){speak("Please find a route first.");return;}
+ if(stepIndex<latestSteps.length-1)stepIndex++;
+ [...$("steps").children].forEach((el,i)=>{el.style.fontWeight=i===stepIndex?"700":"400";el.style.background=i===stepIndex?"#fff4bd":"transparent";});
+ $("status").textContent=`Instruction ${stepIndex+1} of ${latestSteps.length}: ${latestSteps[stepIndex]}`;speak(latestSteps[stepIndex]);
+});
+$("language").addEventListener("change",()=>{if(latestSteps.length)findRoute();});
+loadMap().catch(()=>$("status").textContent="Backend is not running. See README.md.");
+</script>
+</body>
+</html>
